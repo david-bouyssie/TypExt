@@ -88,6 +88,85 @@ ExtJS 5.1.1 only is currently supported, but I plan to extend the usage of TypEx
 
 ## TypExt addons
 
+TypExt major addons are shortly described below:
+
+### 1. TypExt.addon.data.IModelField
+
+
+
+```javascript
+module path.to.my.module {
+
+  import IModelField = TypExt.addon.data.IModelField;
+
+  export interface IFile {
+    id: string;
+    path: string;
+    name: string;
+    size: number;
+    lastmodified: number;
+    extension: string;
+  }
+
+  export class FileModelFactory extends TypExt.addon.data.AbstractModelFactory implements IFile {
+    getClassName() { return "PWD.module.dse.model.File" }
+
+    id: any = <IModelField>{ name: 'id', type: 'string' };
+    path: any = <IModelField>{ name: 'path', type: 'string' };
+    name: any = <IModelField>{ name: 'name', type: 'string' };
+    size: any = <IModelField>{ name: 'size', type: 'int' };
+    lastmodified: any = <IModelField>{ name: 'lastmodified', type: 'int' };
+    extension: any = <IModelField>{ name: 'extension', type: 'string' };
+  }
+
+  new FileModelFactory().defineModel();
+}
+```
+Note: you need to force the type 'any' to avoid the following error: 
+```javascript
+Type 'IModelField' is not assignable to type 'number'.
+```
+
+You can also use ExtJS automatic typing (recommanded for strings only):
+```javascript
+...
+  export class FileModelFactory extends TypExt.addon.data.AbstractModelFactory implements IFile {
+    getClassName() { return "PWD.module.dse.model.File" }
+    id = 'id';
+    path = 'path';
+    name = 'name';
+    size: any = <IModelField>{ name: 'size', type: 'int' }; // prefer to define it explicitly for non-string types
+    lastmodified: any = <IModelField>{ name: 'lastmodified', type: 'int' };
+    extension = 'extension';
+  }
+...
+```
+
+### 2. TypExt.addon.Ajax
+
+TypExt provides shortcut methods *httpPost* and *httpGet* for HTTP calls, for example:
+```javascript
+TypExt.addon.Ajax.httpPost({
+  url: "www.my.url",
+  params: {...},
+  callback: function(options: TypExt.ajax.IRequestConfig, success: boolean, response: XMLHttpRequest) {
+    if (success) ... else ...
+  }
+});
+```
+
+### 3. TypExt.addon.panel.IPanel
+
+The main advantage of this addon panel over a classical one is that it provides the *createAndExtend()* method. It will return the panel as an *IExtendedContainer* (also a TypExt addon), much more powerfull.
+For example, and that was the initial motivation for creating it, assessing a panel children in javascript can be very tricky. The addon panel provides an utility method to get them more easily:
+```javascript
+const addonPanel = TypExt.addon.Panel.createAndExtend({
+  config...
+});
+const embeddedPanels: TypExt.addon.panel.IPanel[] = addonPanel.getItems();
+```
+
+
 ## Caveats
 
 TypExt doesn't solve entirely the TS/ExtJS integration.
