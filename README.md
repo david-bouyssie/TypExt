@@ -43,7 +43,33 @@ Note that I made changes to this converter to make it compatible with ExtJS 5.1.
 * https://github.com/thanhptr/extts - ExtJS 4.2.1, 5.1.1 & 6.0.2 (modern/classic) - Last update Aug 15, 2016 <br/>
 This repo maintained by Thanh Pham is the most recent source of TypeScript definitions.
 
-While the availability of such TS definitions allows a partial comprehension of the ExtJS API by the TypeScript compiler, some other devs worked on a forked version of TS compiler to emit JavaScript code in an ExtJS class style:
+While the availability of such TS definitions allows a partial comprehension of the ExtJS API by the TypeScript compiler.
+They don't provide a compile-time checking of ExtJS classes instantiation. <br/>
+Indeed, due to incompatibilities between ExtJS and TypeScript it is not possible to use the *new* operator if you want to instantiate ExtJS classes. <br/>
+However it is still possible to use the method *Ext.create('MyClass',config)* which takes as first parameter the name of the class to instantiate or its alias. For more information about *Ext.create()* and the differences with the *new* operator, have a look to these topics on Stackoverflow: <br/>
+http://stackoverflow.com/questions/9481828/objects-in-extjs-ext-create-or-new-operator <br/>
+http://stackoverflow.com/questions/16991133/how-to-use-ext-create-properly
+
+If you use the ExtJS-TS definitions provided by one of the repos cited above you will be able to instantiate your ExtJS class. <br/>
+However you will have no guarantee that the name of the class you want to instiante is valid.  <br/>
+Let's say you want to instantiate an ExtJS panel. You may write something like this:  <br/>
+```javascript
+Ext.create('Ext.panel.Pnel', {
+    title: 'Hello',
+    width: 200,
+    html: '<p>World!</p>',
+    renderTo: document.body
+});
+```
+And because of the typo on the class name you will see the following error at runtime:
+```
+Uncaught Error: [Ext.create] Unrecognized class name / alias: Ext.panel.Pnel
+```
+
+Don't you think it could be nice to catch this error at compile time? <br/>
+To overcome this issue, some other devs worked on a forked version of TS compiler to emit JavaScript code in an ExtJS class style.
+Thus instead of emitting vanilla javascript code, the compiler will generate code compliant with the ExtJS class syntax.
+Here is a list of repositories proposing to these patched compilers:
 
 * https://typescript4extjs.codeplex.com/ - Last update Jul 16, 2014 <br/>
 Abandonned project (version 0.0.1 alpha), seems to be a proof-of-concept only.
@@ -68,46 +94,21 @@ What about TS 2.0 and ExtJS 6.x ?
 
 The second drawback is relative to Javascript performance.
 The TS compiler does a lot of work to generate JS code that will be as fast as possible.
-Emitting JS code using the ExtJS style means that a lot of things will occur at runtime and this may not be what you wish to obtain for some parts of your code.
-
-Last but not least these solutions are a partial answer to the ExtJS/TypeScript integration.
-They don't provide a compile-time checking of ExtJS classes instantiation. <br/>
-Indeed, due to incompatibilities between ExtJS and TypeScript it is not possible to use the *new* operator if you want to instantiate ExtJS classes. <br/>
-However it is still possible to use the method *Ext.create('MyClass',config)* which takes as first parameter the name of the class to instantiate or its alias. For more information about *Ext.create()* and the differences with the *new* operator, have a look to these topics on Stackoverflow: <br/>
-http://stackoverflow.com/questions/9481828/objects-in-extjs-ext-create-or-new-operator <br/>
-http://stackoverflow.com/questions/16991133/how-to-use-ext-create-properly <br/> <br/>
-
-If you use the ExtJS-TS definitions provided by one of the repos cited above you will be able to instantiate your ExtJS class. <br/>
-However you will have no guarantee that the name of the class you want to instiante is valid.  <br/>
-Let's say you want to instantiate an ExtJS panel. You may write something like this:  <br/>
-```javascript
-Ext.create('Ext.panel.Pnel', {
-    title: 'Hello',
-    width: 200,
-    html: '<p>World!</p>',
-    renderTo: document.body
-});
-```
-And because of the typo on the class name you will see the following error at runtime:
-```
-Uncaught Error: [Ext.create] Unrecognized class name / alias: Ext.panel.Pnel
-```
+Emitting JS code using the ExtJS style means that a lot of things will occur at runtime and this may not be what you wish to obtain for some parts of your code. <br/>
+Moreover you may want to use vanilla TypeScript classes for some purposes and ExtJS classes for other ones. With a modified compiler all your emitted classes will follow the ExtJS syntax, and this might not be what you want. <br/>
 
 So, are we stuck?
-Don't you think it could be nice to catch this error at compile time?
-
 I think there is another way that has not been explored so far: use TS static methods as a factory of ExtJS objects.
 
 ## TypExt: compile-time checking of your ExtJS classes instantiation
 
-The main idea of TypExt is to provide a set of static methods replacing the ExtJS object construction via the *Ext.create()* method.
-It thus becomes possible to instantiate ExtJS classes while using the genuine TS compiler. <br/>
-ExtJS 5.1.1 only is currently supported, but I plan to extend the usage of TypExt to other ExtJS versions. <br/><br/>
+The main idea of TypExt is to provide a set of static methods replacing the ExtJS object construction usually performed via the *Ext.create()* method. It thus becomes possible to instantiate ExtJS classes while using the genuine TS compiler. <br/>
+Note that ExtJS 5.1.1 only is currently supported for now, but I plan to extend the usage of TypExt to other ExtJS versions. <br/>
 
 For each ExtJS class the TypExt library provides a static factory method named *create()* prefixed by the namespace of the class.<br/>
 To avoid confusion with the ExtJS namespace, the root namespace is *TypExt* instead of *Ext*.<br/>
 For instance, the factory method of the class *Ext.panel.Panel* is *TypeExt.panel.Panel.create()*.<br/>
-So if we translate our previous ExtJS panel construction in the TypExt syntax it becomes:
+So if we translate our previous ExtJS panel construction example in the TypExt syntax it becomes:
 
 ```javascript
 TypExt.panel.Pnel.create( {
@@ -119,17 +120,30 @@ TypExt.panel.Pnel.create( {
 ```
 If you try to compile this little code using the TypeScript compiler you will obtain this error at compile-time:
 ```
-Property 'Pnel' does not exist
+Property 'Pnel' does not exist...
 ```
 
-We thus moved from runtime error checking to compile-time error. This gives us more safety when developping/maintaining large applications.
+We thus moved from runtime error checking to compile-time error checking. This gives us more safety when developing/maintaining large applications.
 Note that we can also take advantage of autocompletion on the TypExt namespace to look for sub-modules and class names.<br/>
 
-Another feature of TypExt is that the configuration passed to the create method is restricted to the list of options that are really used by the class constructor.
-Other available ExtJS-TS definitions provides interfaces mixing configs, properties and methods.
+Another feature of TypExt is that the configuration passed to the *create()* method is restricted to the list of arguments that are really used by the class constructor.
+Other available ExtJS-TS definitions provide interfaces mixing configs, properties and methods.
 Having an interface that correspond strictly to the constructor configuration is a real advantage if you want to be sure that you don't provide a wrong parameter. This is thus another source of safety provided by the TypExt library.<br/>
 
-## TypExt usage
+## TypExt getting started
+
+### 1. Required files
+
+The TypExt project is composed of the following file hierarchy:
+* typescripts/extjs.d.ts // ExtJS 5.1.1 TypeScript definitions automatically generated from *JSDuck* autput
+* typescripts/extjs-addon.d.ts // manual additions to ExtJS 5.1.1 TypeScript definitions
+* typescripts/typext-config.d.ts // A subsset of ExtJS-TS interfaces including only the *Config* fields (in order to match the constructor signature)
+* typescripts/typext.ts // The TypExt factory methods of ExtJS classes
+* typescripts/typext-addon.ts // A set of utilities extending the TypExt features (see section below)
+
+If you don't want to compile the TypExt library in your project it also possible to grab a pre-compiled version of the library from the [*output* directory](output/) (compilation of the typext.ts and typext-addon.ts files).
+
+### 2. Usage examples
 
 
 
