@@ -1,5 +1,5 @@
 # TypExt
-A Typescript factory of ExtJS classes
+A Typescript factory of ExtJS classes.
 
 The goal of this project is to provide a brige between TypeScript and the ExtJS framework.
 
@@ -43,18 +43,18 @@ Note that I made changes to this converter to make it compatible with ExtJS 5.1.
 * https://github.com/thanhptr/extts - ExtJS 4.2.1, 5.1.1 & 6.0.2 (modern/classic) - Last update Aug 15, 2016 <br/>
 This repo maintained by Thanh Pham is the most recent source of TypeScript definitions.
 
-While the availability of such TS definitions allows a partial comprehension of the ExtJS API by the TypeScript compiler.
-They don't provide a compile-time checking of ExtJS classes instantiation. <br/>
+While the availability of such TS definitions allows a partial comprehension of the ExtJS API by the TypeScript compiler,
+they don't provide a compile-time checking of ExtJS classes instantiation. <br/>
 Indeed, due to incompatibilities between ExtJS and TypeScript it is not possible to use the *new* operator if you want to instantiate ExtJS classes. <br/>
 However it is still possible to use the method *Ext.create('MyClass',config)* which takes as first parameter the name of the class to instantiate or its alias. For more information about *Ext.create()* and the differences with the *new* operator, have a look to these topics on Stackoverflow: <br/>
 http://stackoverflow.com/questions/9481828/objects-in-extjs-ext-create-or-new-operator <br/>
 http://stackoverflow.com/questions/16991133/how-to-use-ext-create-properly
 
 If you use the ExtJS-TS definitions provided by one of the repos cited above you will be able to instantiate your ExtJS class. <br/>
-However you will have no guarantee that the name of the class you want to instiante is valid.  <br/>
+However you will have no guarantee that the name of the class you want to instantiate is valid.  <br/>
 Let's say you want to instantiate an ExtJS panel. You may write something like this:  <br/>
 ```javascript
-Ext.create('Ext.panel.Pnel', {
+Ext.create('Ext.panel.Panel', {
     title: 'Hello',
     width: 200,
     html: '<p>World!</p>',
@@ -63,7 +63,7 @@ Ext.create('Ext.panel.Pnel', {
 ```
 And because of the typo on the class name you will see the following error at runtime:
 ```
-Uncaught Error: [Ext.create] Unrecognized class name / alias: Ext.panel.Pnel
+Uncaught Error: [Ext.create] Unrecognized class name / alias: Ext.panel.Panel
 ```
 
 Don't you think it could be nice to catch this error at compile time? <br/>
@@ -83,18 +83,18 @@ The current fabioparra's fork of the TypeScript compiler. Very active project.
 
 ## Motivation for an alternative solution
 
-So you may wonder why develop another solution if all the great definitions/tools mentionned above are available ?
+So you may wonder why develop another solution if all the great definitions/tools mentionned above are available?
 Because none of them may satisfy your needs.
 
 In my opinion the main drawback of the *Patched Compiler* approach (see fabioparra repos) is that it complicates the integration with IDE supporting the TS language.
 For instance there is no documentation regarding the compatibility of this solution with existing Eclipse TS plugins.
 Moreover it is not sure that the development of this modified compiler will be maintained for future versions of TypeScript.
 If you have a look at the current repo documentation, you will see that it is compatible only with TS up to 1.8 and ExtJS up to 5.x.
-What about TS 2.0 and ExtJS 6.x ?
+What about TS 2.0 and ExtJS 6.x?
 
 The second drawback is relative to Javascript performance.
 The TS compiler does a lot of work to generate JS code that will be as fast as possible.
-Emitting JS code using the ExtJS style means that a lot of things will occur at runtime and this may not be what you wish to obtain for some parts of your code. <br/>
+Emitting JS code using the ExtJS style means that a lot of things will occur at runtime and this may not be what you wish to obtain for some parts of your code.<br/>
 Moreover you may want to use vanilla TypeScript classes for some purposes and ExtJS classes for other ones. With a modified compiler all your emitted classes will follow the ExtJS syntax, and this might not be what you want. <br/>
 
 So, are we stuck?
@@ -111,7 +111,7 @@ For instance, the factory method of the class *Ext.panel.Panel* is *TypeExt.pane
 So if we translate our previous ExtJS panel construction example in the TypExt syntax it becomes:
 
 ```javascript
-TypExt.panel.Pnel.create( {
+TypExt.panel.Panel.create( {
     title: 'Hello',
     width: 200,
     html: '<p>World!</p>',
@@ -120,7 +120,7 @@ TypExt.panel.Pnel.create( {
 ```
 If you try to compile this little code using the TypeScript compiler you will obtain this error at compile-time:
 ```
-Property 'Pnel' does not exist...
+Property 'Panel' does not exist...
 ```
 
 We thus moved from runtime error checking to compile-time error checking. This gives us more safety when developing/maintaining large applications.
@@ -144,7 +144,6 @@ The TypExt project is composed of the following file hierarchy:
 If you don't want to compile the TypExt library in your project it also possible to grab a pre-compiled version of the library from the [*output* directory](output/) (compilation of the typext.ts and typext-addon.ts files).
 
 ### 2. Usage examples
-
 
 
 ## TypExt addons
