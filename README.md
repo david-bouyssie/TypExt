@@ -72,7 +72,7 @@ Thus instead of emitting vanilla javascript code, the compiler will generate cod
 Here is a list of repositories proposing to these patched compilers:
 
 * https://typescript4extjs.codeplex.com/ - Last update Jul 16, 2014 <br/>
-Abandonned project (version 0.0.1 alpha), seems to be a proof-of-concept only.
+Abandoned project (version 0.0.1 alpha), seems to be a proof-of-concept only.
 
 * https://github.com/fabioparra/TypeScriptExtJSEmitter - TypeScript - 1.0.3 - Last update Jan 31, 2015 <br/>
 First fabioparra's fork of the TypeScript compiler.
